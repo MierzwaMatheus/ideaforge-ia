@@ -23,6 +23,14 @@ const AGENT_IDS = [
   'construtor_ai',
 ];
 
+const AGENT_ID_MAP = {
+  valida_ia: 'validacao',
+  strategos_ai: 'negocios',
+  pixel_ai: 'design',
+  impulso_ai: 'marketing',
+  construtor_ai: 'tecnico',
+};
+
 const OnboardingFlow = () => {
   const navigate = useNavigate();
   const { currentStep, data, updateData, nextStep, prevStep, canProceed, totalSteps } = useOnboarding();
@@ -64,6 +72,7 @@ const OnboardingFlow = () => {
               sender: 'agent',
               content: agentResponse,
               timestamp: Date.now(),
+              agentType: AGENT_ID_MAP[agentId],
             };
             const chatPath = `chats/${projectId}/${agentId}/messages`;
             await set(ref(db, `${chatPath}/1`), userMsg);
