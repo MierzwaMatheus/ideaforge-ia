@@ -4,7 +4,7 @@ import { IdeaForgeInput } from '@/components/ui/ideaforge-input';
 import { IdeaForgeButton } from '@/components/ui/ideaforge-button';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Google, Apple } from 'lucide-react';
+import { Chrome, Apple } from 'lucide-react';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import '@/lib/firebase';
 
@@ -47,7 +47,7 @@ const Auth = () => (
               <Separator className="flex-1" />
             </div>
             <Button id="google-login-btn" variant="outline" className="w-full flex items-center gap-2 justify-center" onClick={handleGoogleLogin}>
-              <Google className="w-5 h-5" /> Entrar com Google
+              <Chrome className="w-5 h-5" /> Entrar com Google
             </Button>
             <Button id="apple-login-btn" variant="outline" className="w-full flex items-center gap-2 justify-center" onClick={handleAppleLogin}>
               <Apple className="w-5 h-5" /> Entrar com Apple
