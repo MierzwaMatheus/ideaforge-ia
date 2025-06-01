@@ -1,8 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, FileText, ChevronDown } from 'lucide-react';
 import { IdeaForgeButton } from '@/components/ui/ideaforge-button';
 import { IdeaForgeCard } from '@/components/ui/ideaforge-card';
+import { getAuth } from 'firebase/auth';
+import { getDatabase, ref, get } from '@/lib/firebase';
 
 interface Message {
   id: string;
@@ -33,15 +34,7 @@ const documents = [
 ];
 
 const ProjectChat: React.FC<ProjectChatProps> = ({ projectId }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: 'Olá! Sou o Valida IA, especialista em validação de ideias. Como posso ajudar você a refinar e validar seu projeto EcoFood App?',
-      sender: 'agent',
-      timestamp: new Date(),
-      agentType: 'validacao'
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [activeAgent, setActiveAgent] = useState('validacao');
   const [isTyping, setIsTyping] = useState(false);
@@ -54,6 +47,30 @@ const ProjectChat: React.FC<ProjectChatProps> = ({ projectId }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+      const db = getDatabase();
+      const chatPath = `users/${user.uid}/projects/${projectId}/chats/${activeAgent}/messages`;
+      const snapshot = await get(ref(db, chatPath));
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        // Converter objeto para array ordenada por chave
+        const msgs = Object.entries(data).map(([id, value]) => ({
+          id,
+          ...value,
+          timestamp: value.timestamp ? new Date(value.timestamp) : new Date()
+        }));
+        setMessages(msgs);
+      } else {
+        setMessages([]);
+      }
+    };
+    fetchMessages();
+  }, [projectId, activeAgent]);
 
   useEffect(() => {
     scrollToBottom();
