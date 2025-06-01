@@ -234,7 +234,7 @@ const Dashboard = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-ideaforge-bg-secondary border-t border-ideaforge-text-secondary border-opacity-20 z-10">
         <div className="grid grid-cols-3 h-16">
           <button
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => { setActiveTab('dashboard'); navigate('/dashboard'); }}
             className={`flex flex-col items-center justify-center gap-1 ideaforge-transition ${
               activeTab === 'dashboard'
                 ? 'text-ideaforge-primary'
@@ -246,7 +246,7 @@ const Dashboard = () => {
           </button>
           
           <button
-            onClick={() => setActiveTab('documents')}
+            onClick={() => { setActiveTab('documents'); navigate('/dashboard?tab=documents'); }}
             className={`flex flex-col items-center justify-center gap-1 ideaforge-transition ${
               activeTab === 'documents'
                 ? 'text-ideaforge-primary'
@@ -258,7 +258,7 @@ const Dashboard = () => {
           </button>
           
           <button
-            onClick={() => setActiveTab('settings')}
+            onClick={() => { setActiveTab('settings'); navigate('/settings'); }}
             className={`flex flex-col items-center justify-center gap-1 ideaforge-transition ${
               activeTab === 'settings'
                 ? 'text-ideaforge-primary'
