@@ -1,7 +1,6 @@
 import React from 'react';
 import { IdeaForgeCard } from '@/components/ui/ideaforge-card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { IdeaForgeButton } from '@/components/ui/ideaforge-button';
 import { Chrome, Apple } from 'lucide-react';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import '@/lib/firebase';
@@ -29,7 +28,7 @@ const Auth = () => (
         className="hidden md:flex md:w-1/2 relative bg-cover bg-center"
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1477346611705-65d1883cee1e?auto=format&fit=crop&w=800&q=80)',
-          clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0% 100%)',
+          clipPath: 'polygon(0 0, 100% 0, 80% 100%, 0% 100%)',
         }}
       >
         <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
@@ -38,15 +37,15 @@ const Auth = () => (
         </div>
       </div>
       {/* Área de botões */}
-      <div className="flex-1 flex flex-col justify-center items-center p-8 gap-6 bg-white">
-        <h3 className="text-2xl font-bold text-gray-700 mb-2 font-bitter text-center">Entrar na sua conta</h3>
+      <div className="flex-1 flex flex-col justify-center items-center p-10 gap-8 bg-ideaforge-bg-secondary">
+        <h3 className="text-2xl font-bold text-ideaforge-primary mb-2 font-bitter text-center">Entrar na sua conta</h3>
         <div className="flex flex-col gap-4 w-full max-w-xs">
-          <Button id="google-login-btn" variant="outline" className="w-full flex items-center gap-2 justify-center text-base py-3" onClick={handleGoogleLogin}>
+          <IdeaForgeButton id="google-login-btn" variant="primary" className="w-full flex items-center gap-2 justify-center text-base py-3" onClick={handleGoogleLogin}>
             <Chrome className="w-5 h-5" /> Entrar com Google
-          </Button>
-          <Button id="apple-login-btn" variant="outline" className="w-full flex items-center gap-2 justify-center text-base py-3" onClick={handleAppleLogin}>
+          </IdeaForgeButton>
+          <IdeaForgeButton id="apple-login-btn" variant="secondary" className="w-full flex items-center gap-2 justify-center text-base py-3" onClick={handleAppleLogin}>
             <Apple className="w-5 h-5" /> Entrar com Apple
-          </Button>
+          </IdeaForgeButton>
         </div>
       </div>
     </IdeaForgeCard>
