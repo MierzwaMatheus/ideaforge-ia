@@ -1,14 +1,35 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { IdeaForgeInput } from '@/components/ui/ideaforge-input';
 import { IdeaForgeButton } from '@/components/ui/ideaforge-button';
 import { toast } from '@/hooks/use-toast';
+import { getAuth } from 'firebase/auth';
+import { getDatabase, ref, set, get } from '@/lib/firebase';
 
 const ApiKeySection = () => {
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Buscar chave ao montar
+  useEffect(() => {
+    const fetchApiKey = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+      const db = getDatabase();
+      const keyRef = ref(db, `users/${user.uid}/googleAiApiKey`);
+      try {
+        const snapshot = await get(keyRef);
+        if (snapshot.exists()) {
+          setApiKey(snapshot.val());
+        }
+      } catch (error) {
+        // Silencioso
+      }
+    };
+    fetchApiKey();
+  }, []);
 
   const handleSaveKey = async () => {
     if (!apiKey.trim()) {
@@ -19,14 +40,14 @@ const ApiKeySection = () => {
       });
       return;
     }
-
     setLoading(true);
-    
     try {
-      // TODO: Implement API key validation and storage
-      // For now, simulate saving to localStorage
-      localStorage.setItem('googleAiApiKey', apiKey);
-      
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) throw new Error('Usuário não autenticado');
+      const db = getDatabase();
+      const keyRef = ref(db, `users/${user.uid}/googleAiApiKey`);
+      await set(keyRef, apiKey);
       toast({
         title: "Sucesso!",
         description: "Chave salva com sucesso!",
@@ -35,7 +56,7 @@ const ApiKeySection = () => {
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Chave inválida. Verifique e tente novamente.",
+        description: "Não foi possível salvar a chave. Verifique sua conexão ou autenticação.",
         variant: "destructive",
       });
     } finally {
