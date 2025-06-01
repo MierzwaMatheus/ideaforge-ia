@@ -5,7 +5,7 @@ import { IdeaForgeButton } from '@/components/ui/ideaforge-button';
 import { ProgressIndicator } from '@/components/ui/progress-indicator';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, set, push } from '@/lib/firebase';
+import { getDatabase, ref, set, push, get } from '@/lib/firebase';
 import { getAgentResponse } from '@/services/ideiaforge_agents';
 import OnboardingStep1 from './OnboardingStep1';
 import OnboardingStep2 from './OnboardingStep2';
@@ -29,6 +29,7 @@ const OnboardingFlow = () => {
 
   const handleFinish = async () => {
     try {
+      console.log('[Onboarding] Iniciando criação do projeto...');
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) throw new Error('Usuário não autenticado');
@@ -36,37 +37,48 @@ const OnboardingFlow = () => {
       // Gerar novo projectId
       const projectRef = push(ref(db, `users/${user.uid}/projects`));
       const projectId = projectRef.key;
+      console.log('[Onboarding] projectId:', projectId);
       // Salvar dados do projeto
       await set(projectRef, {
         ...data,
         createdAt: Date.now(),
       });
+      console.log('[Onboarding] Projeto salvo no RTDB');
       // Buscar chave de API do usuário
       const apiKeySnap = await get(ref(db, `users/${user.uid}/googleAiApiKey`));
       const apiKey = apiKeySnap.exists() ? apiKeySnap.val() : '';
+      console.log('[Onboarding] apiKey:', apiKey);
       // Para cada agente, enviar mensagem inicial e salvar resposta
       await Promise.all(
         AGENT_IDS.map(async (agentId) => {
-          const userMsg = {
-            sender: 'user',
-            content: JSON.stringify(data),
-            timestamp: Date.now(),
-          };
-          const agentResponse = await getAgentResponse(projectId, agentId, JSON.stringify(data), apiKey);
-          const agentMsg = {
-            sender: 'agent',
-            content: agentResponse,
-            timestamp: Date.now(),
-          };
-          const chatRef = ref(db, `chats/${projectId}/${agentId}/messages`);
-          // Salvar as duas mensagens
-          await set(ref(db, `${chatRef.path.pieces_.join('/')}/1`), userMsg);
-          await set(ref(db, `${chatRef.path.pieces_.join('/')}/2`), agentMsg);
+          try {
+            console.log(`[Onboarding] Acionando agente: ${agentId}`);
+            const userMsg = {
+              sender: 'user',
+              content: JSON.stringify(data),
+              timestamp: Date.now(),
+            };
+            const agentResponse = await getAgentResponse(projectId, agentId, JSON.stringify(data), apiKey);
+            console.log(`[Onboarding] Resposta do agente ${agentId}:`, agentResponse);
+            const agentMsg = {
+              sender: 'agent',
+              content: agentResponse,
+              timestamp: Date.now(),
+            };
+            const chatPath = `chats/${projectId}/${agentId}/messages`;
+            await set(ref(db, `${chatPath}/1`), userMsg);
+            await set(ref(db, `${chatPath}/2`), agentMsg);
+            console.log(`[Onboarding] Mensagens salvas para agente: ${agentId}`);
+          } catch (agentError) {
+            console.error(`[Onboarding] Erro ao acionar agente ${agentId}:`, agentError);
+            throw agentError;
+          }
         })
       );
-      // Redirecionar para o projeto criado
+      console.log('[Onboarding] Todos agentes acionados com sucesso. Redirecionando...');
       navigate(`/project/${projectId}`);
     } catch (error) {
+      console.error('[Onboarding] Erro geral:', error);
       alert('Erro ao criar projeto e acionar agentes. Tente novamente.');
     }
   };
