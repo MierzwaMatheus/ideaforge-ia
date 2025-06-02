@@ -53,7 +53,7 @@ const Dashboard = () => {
   };
 
   const filteredProjects = projects.filter(project =>
-    project.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    project.projectName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -107,7 +107,7 @@ const Dashboard = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h3 className="text-lg font-bitter font-semibold text-ideaforge-text-primary">
-                        {project.name}
+                        {project.projectName}
                       </h3>
                       <p className="text-sm font-exo text-ideaforge-text-secondary">
                         {project.type}

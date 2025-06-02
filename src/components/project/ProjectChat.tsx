@@ -3,7 +3,8 @@ import { Send, FileText, ChevronDown } from 'lucide-react';
 import { IdeaForgeButton } from '@/components/ui/ideaforge-button';
 import { IdeaForgeCard } from '@/components/ui/ideaforge-card';
 import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, get } from '@/lib/firebase';
+import { getDatabase, ref, get, set, push, onValue, off } from '@/lib/firebase';
+import { getAgentResponse } from '@/services/ideiaforge_agents';
 
 interface Message {
   id: string;
@@ -18,11 +19,11 @@ interface ProjectChatProps {
 }
 
 const agents = [
-  { id: 'validacao', name: 'Valida IA', description: 'Validação de ideias' },
-  { id: 'negocios', name: 'Strategos AI', description: 'Estratégia de negócios' },
-  { id: 'design', name: 'Pixel AI', description: 'Design e UX' },
-  { id: 'marketing', name: 'Impulso AI', description: 'Marketing e vendas' },
-  { id: 'tecnico', name: 'Construtor AI', description: 'Desenvolvimento técnico' }
+  { id: 'valida_ia', name: 'Valida IA', description: 'Validação de ideias' },
+  { id: 'strategos_ai', name: 'Strategos AI', description: 'Estratégia de negócios' },
+  { id: 'pixel_ai', name: 'Pixel AI', description: 'Design e UX' },
+  { id: 'impulso_ai', name: 'Impulso AI', description: 'Marketing e vendas' },
+  { id: 'construtor_ai', name: 'Construtor AI', description: 'Desenvolvimento técnico' }
 ];
 
 const documents = [
@@ -34,9 +35,10 @@ const documents = [
 ];
 
 const ProjectChat: React.FC<ProjectChatProps> = ({ projectId }) => {
+  console.log('[ProjectChat] projectId recebido:', projectId);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [activeAgent, setActiveAgent] = useState('validacao');
+  const [activeAgent, setActiveAgent] = useState('valida_ia');
   const [isTyping, setIsTyping] = useState(false);
   const [showAgentDropdown, setShowAgentDropdown] = useState(false);
   const [showDocumentDropdown, setShowDocumentDropdown] = useState(false);
@@ -49,60 +51,73 @@ const ProjectChat: React.FC<ProjectChatProps> = ({ projectId }) => {
   };
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (!user) return;
-      const db = getDatabase();
-      const chatPath = `users/${user.uid}/projects/${projectId}/chats/${activeAgent}/messages`;
-      const snapshot = await get(ref(db, chatPath));
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+    const db = getDatabase();
+    const chatPath = `users/${user.uid}/projects/${projectId}/chats/${activeAgent}/messages`;
+    const chatRef = ref(db, chatPath);
+    const handleValue = (snapshot: any) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
-        // Converter objeto para array ordenada por chave
         const msgs = Object.entries(data).map(([id, value]) => ({
           id,
           ...value,
-          timestamp: value.timestamp ? new Date(value.timestamp) : new Date()
+          timestamp: value && (value as any).timestamp ? new Date((value as any).timestamp) : new Date()
         }));
         setMessages(msgs);
       } else {
         setMessages([]);
       }
     };
-    fetchMessages();
+    onValue(chatRef, handleValue);
+    return () => off(chatRef, 'value', handleValue);
   }, [projectId, activeAgent]);
 
   useEffect(() => {
+    console.log('[ProjectChat] activeAgent:', activeAgent);
     scrollToBottom();
   }, [messages]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: newMessage,
-      sender: 'user',
-      timestamp: new Date()
-    };
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+    const db = getDatabase();
+    const chatPath = `users/${user.uid}/projects/${projectId}/chats/${activeAgent}/messages`;
 
-    setMessages(prev => [...prev, userMessage]);
-    setNewMessage('');
     setIsTyping(true);
+    setNewMessage('');
 
-    // Simulate AI response
-    setTimeout(() => {
-      const activeAgentData = agents.find(agent => agent.id === activeAgent);
-      const agentMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: `Como ${activeAgentData?.name}, posso ajudar você com essa questão. Vou analisar sua pergunta e fornecer insights específicos da minha área de especialização.`,
-        sender: 'agent',
-        timestamp: new Date(),
-        agentType: activeAgent
-      };
-      setMessages(prev => [...prev, agentMessage]);
-      setIsTyping(false);
-    }, 2000);
+    // 1. Salvar mensagem do usuário no banco
+    const userMsgRef = push(ref(db, chatPath));
+    const userMsgData = {
+      sender: 'user',
+      content: newMessage,
+      timestamp: Date.now(),
+    };
+    await set(userMsgRef, userMsgData);
+
+    // 2. Buscar chave da API do usuário
+    const apiKeySnap = await get(ref(db, `users/${user.uid}/googleAiApiKey`));
+    const apiKey = apiKeySnap.exists() ? apiKeySnap.val() : '';
+
+    // 3. Buscar resposta da IA
+    const agentResponse = await getAgentResponse(projectId, activeAgent, newMessage, apiKey);
+
+    // 4. Salvar resposta do agente no banco
+    const agentMsgRef = push(ref(db, chatPath));
+    const agentMsgData = {
+      sender: 'agent',
+      content: agentResponse,
+      timestamp: Date.now(),
+      agentType: activeAgent,
+    };
+    await set(agentMsgRef, agentMsgData);
+
+    setIsTyping(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -128,11 +143,11 @@ const ProjectChat: React.FC<ProjectChatProps> = ({ projectId }) => {
 
   const getAgentAvatar = (agentType: string) => {
     const colors = {
-      validacao: 'bg-green-500',
-      negocios: 'bg-blue-500',
-      design: 'bg-purple-500',
-      marketing: 'bg-orange-500',
-      tecnico: 'bg-red-500'
+      valida_ia: 'bg-green-500',
+      strategos_ai: 'bg-blue-500',
+      pixel_ai: 'bg-purple-500',
+      impulso_ai: 'bg-orange-500',
+      construtor_ai: 'bg-red-500'
     };
     return colors[agentType as keyof typeof colors] || 'bg-gray-500';
   };
@@ -204,7 +219,7 @@ const ProjectChat: React.FC<ProjectChatProps> = ({ projectId }) => {
             <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
               {message.sender === 'agent' && (
                 <div className="flex items-center gap-2 mb-1">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-exo ${getAgentAvatar(message.agentType || 'validacao')}`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-exo ${getAgentAvatar(message.agentType || 'valida_ia')}`}>
                     {agents.find(agent => agent.id === message.agentType)?.name.charAt(0)}
                   </div>
                   <span className="text-xs font-exo text-ideaforge-text-secondary">
@@ -219,7 +234,14 @@ const ProjectChat: React.FC<ProjectChatProps> = ({ projectId }) => {
                     : 'bg-ideaforge-bg-secondary text-ideaforge-text-primary rounded-bl-md'
                 }`}
               >
-                <p className="font-exo text-sm leading-relaxed">{message.content}</p>
+                {message.sender === 'agent' ? (
+                  <div
+                    className="font-exo text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: message.content.replace(/^```html|```$/g, '').trim() }}
+                  />
+                ) : (
+                  <p className="font-exo text-sm leading-relaxed">{message.content}</p>
+                )}
               </div>
               <p className={`text-xs font-exo text-ideaforge-text-secondary mt-1 ${
                 message.sender === 'user' ? 'text-right' : 'text-left'

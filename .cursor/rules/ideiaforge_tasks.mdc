@@ -1,0 +1,362 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Tasks e Subtasks do Projeto IdeaForge (Atualizadas)
+
+Este documento detalha as tarefas principais e subtarefas necessárias para o desenvolvimento da aplicação IdeaForge, agora com foco em empreendedores e criativos que desejam transformar ideias em projetos estruturados com documentos acionáveis.
+
+**Legenda de Complexidade:**
+*   **Baixa:** Tarefa simples, rápida de implementar.
+*   **Média:** Requer algum planejamento e esforço moderado.
+*   **Alta:** Tarefa complexa, exige planejamento detalhado, pesquisa e/ou implementação cuidadosa.
+
+---
+
+## Fase 1: Configuração Inicial e Ambiente
+
+**Task 1.1: Configurar Projeto React com Vite (via LOVABLE.DEV)**
+*   **Ordem:** 1
+*   **Complexidade:** Baixa
+*   **Dependências:** Nenhuma
+*   **Status:** Concluída (LOVABLE.DEV)
+*   **Subtasks:**
+    *   1.1.1: Utilizar o setup inicial fornecido pelo LOVABLE.DEV baseado nos prompts.
+    *   1.1.2: Verificar estrutura inicial do projeto (pastas, arquivos de configuração).
+
+**Task 1.2: Configurar Firebase Project**
+*   **Ordem:** 2
+*   **Complexidade:** Baixa
+*   **Dependências:** Nenhuma
+*   **Status:** Concluída
+*   **Subtasks:**
+    *   1.2.1: Criar um novo projeto no console do Firebase (plano Spark/gratuito).
+    *   1.2.2: Ativar Autenticação (Email/Senha e Google).
+    *   1.2.3: Ativar Realtime Database.
+    *   1.2.4: Registrar a aplicação web no Firebase e obter as credenciais de configuração (`firebaseConfig`).
+    *   1.2.5: Salvar as credenciais de forma segura no projeto React (ex: variáveis de ambiente `.env`).
+
+**Task 1.3: Instalar Dependências Essenciais**
+*   **Ordem:** 3
+*   **Complexidade:** Baixa
+*   **Dependências:** Task 1.1
+*   **Subtasks:**
+    *   1.3.1: Instalar `firebase` SDK (`npm install firebase`).
+    *   1.3.2: Instalar `react-router-dom` para roteamento (`npm install react-router-dom`).
+    *   1.3.3: Instalar biblioteca de gerenciamento de estado (ex: `zustand` ou `@reduxjs/toolkit react-redux`).
+    *   1.3.4: Instalar biblioteca para chamadas HTTP à API do Google (ex: `axios` ou usar `fetch` nativo).
+    *   1.3.5: Instalar bibliotecas para geração/exportação de documentos (ex: `react-pdf`, `jspdf`, `html-to-image`).
+
+---
+
+## Fase 2: Desenvolvimento do Front-end (React + Vite)
+
+**Task 2.1: Implementar Estilos Globais e Tema Dark (LOVABLE.DEV)**
+*   **Ordem:** 4
+*   **Complexidade:** Média
+*   **Dependências:** Task 1.1, Task 1.3
+*   **Status:** Concluída (LOVABLE.DEV)
+*   **Subtasks:**
+    *   2.1.1: Revisar e ajustar a configuração de tema global (CSS variables, Styled Components ThemeProvider, etc.) gerada pelo LOVABLE.DEV.
+    *   2.1.2: Validar aplicação das fontes (Bitter, Exo) e cores do dark mode.
+    *   2.1.3: Garantir que os estilos base (reset/normalize) estejam aplicados.
+
+**Task 2.2: Criar Componentes Base Reutilizáveis (LOVABLE.DEV)**
+*   **Ordem:** 5
+*   **Complexidade:** Média
+*   **Dependências:** Task 2.1
+*   **Status:** Concluída (LOVABLE.DEV)
+*   **Subtasks:**
+    *   2.2.1: Revisar e testar os componentes (Botões, Inputs, Cards, etc.) gerados pelo LOVABLE.DEV.
+    *   2.2.2: Organizar os componentes em uma estrutura de pastas lógica (ex: `src/components/common`).
+    *   2.2.3: Criar componentes específicos para visualização de documentos (ex: `DocumentCard`, `DocumentPreview`).
+
+**Task 2.3: Desenvolver Fluxo de Onboarding para Empreendedores (LOVABLE.DEV)**
+*   **Ordem:** 6
+*   **Complexidade:** Média
+*   **Dependências:** Task 2.2, Task 2.7 (Roteamento), Task 2.8 (Estado)
+*   **Status:** Concluída (LOVABLE.DEV)
+*   **Subtasks:**
+    *   2.3.1: Revisar as telas e a lógica de navegação multi-etapas geradas pelo LOVABLE.DEV.
+    *   2.3.2: Adaptar o onboarding para coletar informações relevantes para qualquer tipo de projeto (não apenas digital).
+    *   2.3.3: Implementar campos para setor, mercado, recursos disponíveis e documentos desejados.
+    *   2.3.4: Integrar o gerenciamento de estado para coletar os dados do usuário em cada etapa.
+    *   2.3.5: Implementar a lógica de salvar os dados do onboarding no Firebase ao finalizar.
+    *   2.3.6: Validar a responsividade mobile-first e desktop.
+
+**Task 2.4: Criar Dashboard de Projetos e Documentos (LOVABLE.DEV)**
+*   **Ordem:** 7
+*   **Complexidade:** Média
+*   **Dependências:** Task 2.2, Task 2.7, Task 2.8, Task 2.10
+*   **Status:** Concluída (LOVABLE.DEV)
+*   **Subtasks:**
+    *   2.4.1: Revisar a interface do dashboard gerada pelo LOVABLE.DEV.
+    *   2.4.2: Implementar a busca dos projetos do usuário logado no Firebase.
+    *   2.4.3: Renderizar a lista de projetos usando os Cards definidos, incluindo indicadores de documentos gerados.
+    *   2.4.4: Implementar a seção de "Documentos Recentes" (opcional).
+    *   2.4.5: Implementar filtros por tipo de projeto ou setor.
+    *   2.4.6: Implementar a navegação para a tela de um projeto específico ao clicar em um card.
+    *   2.4.7: Implementar a funcionalidade do botão "Criar Novo Projeto" (leva ao fluxo de Onboarding).
+    *   2.4.8: Implementar o estado vazio.
+    *   2.4.9: Validar responsividade.
+
+**Task 2.5: Desenvolver Tela do Projeto, Chat e Visualização de Documentos (LOVABLE.DEV)**
+*   **Ordem:** 8
+*   **Complexidade:** Alta
+*   **Dependências:** Task 2.2, Task 2.7, Task 2.8, Task 2.10, Fase 4 (Integração IA)
+*   **Status:** Concluída (LOVABLE.DEV - Estrutura UI)
+*   **Subtasks:**
+    *   2.5.1: Revisar a estrutura da tela e interface de chat gerada pelo LOVABLE.DEV.
+    *   2.5.2: Implementar a navegação por abas entre "Chat" e "Documentos".
+    *   2.5.3: Implementar a busca dos detalhes do projeto selecionado e histórico de chat do Firebase.
+    *   2.5.4: Implementar a seleção de Agente IA (dropdown/abas) e atualizar o estado correspondente.
+    *   2.5.5: Renderizar o histórico de mensagens do agente selecionado, formatando corretamente balões de usuário e agente.
+    *   2.5.6: Implementar o input de chat e a lógica de envio de mensagem.
+    *   2.5.7: Integrar a chamada para a lógica dos agentes (Fase 4) ao enviar mensagem.
+    *   2.5.8: Implementar a exibição das respostas do agente (incluindo renderização de HTML).
+    *   2.5.9: Implementar o botão "Gerar Documento" e a lógica para solicitar documentos específicos.
+    *   2.5.10: Implementar a lista de documentos gerados na aba "Documentos".
+    *   2.5.11: Implementar a visualização detalhada de documentos (modal ou tela).
+    *   2.5.12: Implementar funcionalidades de exportação de documentos (PDF, DOCX, etc.).
+    *   2.5.13: Implementar indicador de "digitando...".
+    *   2.5.14: Garantir que novas mensagens e documentos sejam salvos no Firebase.
+    *   2.5.15: Validar responsividade.
+
+**Task 2.6: Criar Tela de Configurações e Preferências (LOVABLE.DEV)**
+*   **Ordem:** 9
+*   **Complexidade:** Média
+*   **Dependências:** Task 2.2, Task 2.7, Task 2.8, Task 2.9, Task 2.10
+*   **Status:** Concluída (LOVABLE.DEV - Estrutura UI)
+*   **Subtasks:**
+    *   2.6.1: Revisar a interface da tela de configurações gerada pelo LOVABLE.DEV.
+    *   2.6.2: Implementar a exibição das informações do usuário (email).
+    *   2.6.3: Implementar a lógica de input e salvamento seguro da Chave de API do Google.
+    *   2.6.4: Implementar as preferências de documentos (formato de exportação, geração automática).
+    *   2.6.5: Implementar as preferências de setor/indústria.
+    *   2.6.6: Implementar feedback visual (sucesso/erro) para o salvamento da chave e preferências.
+    *   2.6.7: Implementar a função de "Sair" (logout via Firebase Auth).
+    *   2.6.8: Validar responsividade.
+
+**Task 2.7: Implementar Roteamento (React Router)**
+*   **Ordem:** 10
+*   **Complexidade:** Baixa
+*   **Dependências:** Task 1.3
+*   **Status:** Concluída
+*   **Subtasks:**
+    *   2.7.1: Configurar `BrowserRouter` no ponto de entrada da aplicação.
+    *   2.7.2: Definir rotas principais (Login, Signup, Onboarding, Dashboard, Projeto/:id, Documentos/:id, Configurações).
+    *   2.7.3: Implementar rotas protegidas que exigem autenticação.
+    *   2.7.4: Configurar navegação entre rotas usando `Link` e `useNavigate`.
+
+**Task 2.8: Gerenciamento de Estado Global**
+*   **Ordem:** 11
+*   **Complexidade:** Média
+*   **Dependências:** Task 1.3
+*   **Subtasks:**
+    *   2.8.1: Escolher e configurar a biblioteca de gerenciamento de estado (Zustand recomendado pela simplicidade).
+    *   2.8.2: Definir o estado global necessário (informações do usuário, estado do onboarding, projeto ativo, documentos).
+    *   2.8.3: Criar stores/slices para diferentes domínios (auth, projects, documents, chat).
+    *   2.8.4: Integrar o estado global nos componentes que precisam dele.
+
+**Task 2.9: Integração Front-end com Firebase Auth**
+*   **Ordem:** 12
+*   **Complexidade:** Média
+*   **Dependências:** Task 1.2, Task 2.7, Task 2.8
+*   **Status:** Concluída
+*   **Subtasks:**
+    *   2.9.1: Criar telas/componentes de Login e Cadastro (se não cobertos pelo LOVABLE).
+    *   2.9.2: Implementar funções para criar usuário com Email/Senha.
+    *   2.9.3: Implementar funções para login com Email/Senha.
+    *   2.9.4: Implementar função para login com Google (Popup/Redirect).
+    *   2.9.5: Implementar função de logout.
+    *   2.9.6: Configurar um listener (`onAuthStateChanged`) para atualizar o estado global do usuário e redirecionar rotas.
+    *   2.9.7: Salvar informações adicionais do usuário no Realtime Database após cadastro (se necessário).
+
+**Task 2.10: Integração Front-end com Firebase Realtime Database (Leitura/Escrita)**
+*   **Ordem:** 13
+*   **Complexidade:** Média
+*   **Dependências:** Task 1.2, Task 2.8, Task 3.3
+*   **Status:** Concluída
+*   **Subtasks:**
+    *   2.10.1: Configurar a inicialização do SDK do Database.
+    *   2.10.2: Criar funções reutilizáveis para escrever dados (ex: salvar projeto, salvar mensagem de chat, salvar documento).
+    *   2.10.3: Criar funções reutilizáveis para ler dados (ex: buscar projetos do usuário, buscar documentos, buscar histórico de chat).
+    *   2.10.4: Implementar listeners (`onValue`) para atualizações em tempo real onde necessário (ex: novas mensagens no chat).
+    *   2.10.5: Integrar essas funções nos componentes relevantes (Onboarding, Dashboard, Tela do Projeto, Documentos).
+
+---
+
+## Fase 3: Desenvolvimento do Back-end (Firebase)
+
+**Task 3.1: Configurar Autenticação Firebase (Email/Senha, Google)**
+*   **Ordem:** 14
+*   **Complexidade:** Baixa
+*   **Status:** Concluída
+*   **Dependências:** Task 1.2
+*   **Subtasks:**
+    *   3.1.1: Habilitar provedores Email/Senha e Google no console Firebase.
+    *   3.1.2: Configurar domínios autorizados se necessário.
+
+**Task 3.2: Definir e Implementar Regras de Segurança do Realtime Database**
+*   **Ordem:** 15
+*   **Complexidade:** Alta
+*   **Dependências:** Task 1.2, Task 3.3
+*   **Subtasks:**
+    *   3.2.1: Definir regras de leitura/escrita granulares baseadas no `auth.uid` do usuário.
+    *   3.2.2: Garantir que usuários só possam acessar/modificar seus próprios dados (projetos, chats, documentos).
+    *   3.2.3: Validar tipos de dados e estrutura ao escrever (ex: `.validate`).
+    *   3.2.4: Implementar regras específicas para cada nó principal da estrutura do DB.
+    *   3.2.5: Testar as regras usando o simulador do Firebase.
+
+**Task 3.3: Estruturar Realtime Database para Projetos e Documentos**
+*   **Ordem:** 16
+*   **Complexidade:** Média
+*   **Dependências:** Task 1.2
+*   **Subtasks:**
+    *   3.3.1: Definir a estrutura JSON principal no arquivo de Cursor Rules.
+    *   3.3.2: Garantir que a estrutura suporte múltiplos usuários, múltiplos projetos por usuário e múltiplos documentos por projeto.
+    *   3.3.3: Incluir nós para dados do usuário (ex: `users/$uid/profile`, `users/$uid/apiKey`, `users/$uid/preferences`).
+    *   3.3.4: Incluir nós para projetos (ex: `projects/$uid/$projectId/details`, `projects/$uid/$projectId/onboardingData`).
+    *   3.3.5: Incluir nós para chats (ex: `chats/$projectId/$agentId/messages/$messageId`).
+    *   3.3.6: Incluir nós para documentos (ex: `documents/$projectId/$documentId/content`, `documents/$projectId/$documentId/metadata`).
+    *   3.3.7: Planejar índices (`.indexOn`) para otimizar queries comuns.
+
+---
+
+## Fase 4: Integração da Inteligência Artificial
+
+**Task 4.1: Implementar Lógica de Chamada à API do Google AI Studio**
+*   **Ordem:** 17
+*   **Complexidade:** Média
+*   **Dependências:** Task 1.3, Task 2.6 (obter API Key)
+*   **Subtasks:**
+    *   4.1.1: Criar uma função/serviço encapsulado para fazer chamadas à API do Google Generative AI.
+    *   4.1.2: Configurar a função para receber o prompt, a chave de API do usuário e outros parâmetros necessários.
+    *   4.1.3: Lidar com a resposta da API (sucesso e erro).
+    *   4.1.4: Implementar tratamento de erros (ex: chave inválida, cota excedida).
+
+**Task 4.2: Implementar Agente de Extração de Palavras-chave (Arquivo TSX)**
+*   **Ordem:** 18
+*   **Complexidade:** Média
+*   **Dependências:** Task 4.1
+*   **Subtasks:**
+    *   4.2.1: Definir a função `extractKeywords(userMessage, apiKey)` no arquivo TSX.
+    *   4.2.2: Atualizar o prompt para o agente de palavras-chave para abranger qualquer tipo de projeto/ideia.
+    *   4.2.3: Chamar a função da Task 4.1 para enviar o prompt à API do Google.
+    *   4.2.4: Processar a resposta da API para extrair a lista de palavras-chave separadas por vírgula.
+    *   4.2.5: Retornar um array de strings com as palavras-chave.
+
+**Task 4.3: Implementar Função de Filtragem de Contexto do Firebase (Arquivo TSX)**
+*   **Ordem:** 19
+*   **Complexidade:** Alta
+*   **Dependências:** Task 2.10, Task 3.3, Task 4.2
+*   **Subtasks:**
+    *   4.3.1: Definir a função `filterContext(projectId, agentId, keywords)` no arquivo TSX.
+    *   4.3.2: Buscar o histórico completo de mensagens para o `projectId` e `agentId` do Firebase.
+    *   4.3.3: Buscar detalhes do projeto, incluindo tipo, setor, público-alvo e outros dados do onboarding.
+    *   4.3.4: Implementar lógica para selecionar as mensagens mais relevantes do histórico com base nas `keywords`.
+    *   4.3.5: Formatar o contexto filtrado (histórico relevante + dados do projeto) em uma string ou estrutura adequada.
+    *   4.3.6: Limitar o tamanho do contexto para evitar exceder limites da API do Google.
+
+**Task 4.4: Atualizar Agentes Especialistas para Foco em Empreendedores (Arquivo TSX)**
+*   **Ordem:** 20
+*   **Complexidade:** Alta
+*   **Dependências:** Task 4.1, Task 4.3
+*   **Subtasks:**
+    *   4.4.1: Atualizar o prompt do agente Valida IA para analisar viabilidade de qualquer tipo de projeto/ideia.
+    *   4.4.2: Atualizar o prompt do agente Strategos AI para sugerir modelos de negócio para qualquer setor.
+    *   4.4.3: Atualizar o prompt do agente Pixel AI para sugerir identidade visual e branding para qualquer tipo de projeto.
+    *   4.4.4: Atualizar o prompt do agente Impulso AI para criar estratégias de marketing para qualquer setor.
+    *   4.4.5: Atualizar o prompt do agente Construtor AI para propor estrutura técnica adaptada ao tipo de projeto.
+    *   4.4.6: Garantir que todos os prompts incluam instruções para gerar conteúdo para documentos acionáveis.
+    *   4.4.7: Definir a função principal `getAgentResponse(projectId, agentId, userMessage, apiKey)` que orquestra todo o processo.
+
+**Task 4.5: Implementar Geração de Documentos Acionáveis**
+*   **Ordem:** 21
+*   **Complexidade:** Alta
+*   **Dependências:** Task 4.4
+*   **Subtasks:**
+    *   4.5.1: Definir a função `generateDocument(projectId, documentType, apiKey)` no arquivo TSX.
+    *   4.5.2: Criar prompts específicos para cada tipo de documento (Pitch Deck, Business Canvas, Landing Page, etc.).
+    *   4.5.3: Buscar todo o histórico relevante de conversas com os agentes para o projeto.
+    *   4.5.4: Formatar um prompt que combine o histórico, detalhes do projeto e instruções específicas para o documento.
+    *   4.5.5: Chamar a API do Google com o prompt formatado.
+    *   4.5.6: Processar a resposta HTML/estruturada da API.
+    *   4.5.7: Salvar o documento gerado no Firebase.
+    *   4.5.8: Retornar o conteúdo formatado para exibição.
+
+**Task 4.6: Implementar Exportação de Documentos**
+*   **Ordem:** 22
+*   **Complexidade:** Média
+*   **Dependências:** Task 4.5
+*   **Subtasks:**
+    *   4.6.1: Implementar função para converter HTML em PDF (usando bibliotecas como `html2pdf.js` ou `jsPDF`).
+    *   4.6.2: Implementar função para converter HTML em DOCX (usando bibliotecas como `docx` ou serviços externos).
+    *   4.6.3: Implementar função para exportar Business Canvas como imagem (usando `html-to-image` ou similar).
+    *   4.6.4: Implementar função para gerar código HTML para Landing Page.
+    *   4.6.5: Integrar essas funções com a interface de visualização de documentos.
+
+**Task 4.7: Gerenciar Histórico de Conversas e Documentos no Firebase**
+*   **Ordem:** 23
+*   **Complexidade:** Média
+*   **Dependências:** Task 2.10, Task 3.3, Task 4.5
+*   **Subtasks:**
+    *   4.7.1: Garantir que cada nova mensagem do usuário seja salva no nó correto do Firebase.
+    *   4.7.2: Garantir que cada nova resposta do agente seja salva no mesmo nó.
+    *   4.7.3: Implementar a lógica para salvar documentos gerados no nó `documents/$projectId/$documentId`.
+    *   4.7.4: Incluir metadados importantes em cada documento (tipo, data de geração, versão).
+    *   4.7.5: Implementar paginação ou carregamento limitado do histórico se necessário.
+
+---
+
+## Fase 5: Testes e Finalização
+
+**Task 5.1: Testes Unitários e de Integração**
+*   **Ordem:** 24
+*   **Complexidade:** Média
+*   **Dependências:** Todas as fases anteriores
+*   **Subtasks:**
+    *   5.1.1: Configurar ambiente de testes (ex: Vitest, React Testing Library).
+    *   5.1.2: Escrever testes unitários para funções críticas (ex: lógica dos agentes TSX, funções de utilidade).
+    *   5.1.3: Escrever testes de integração para fluxos chave (ex: onboarding, geração de documentos).
+
+**Task 5.2: Testes de Usabilidade com Foco em Empreendedores**
+*   **Ordem:** 25
+*   **Complexidade:** Média
+*   **Dependências:** Aplicação funcional
+*   **Subtasks:**
+    *   5.2.1: Testar o fluxo completo de cadastro, onboarding, criação de projeto e interação com agentes.
+    *   5.2.2: Testar a geração e exportação de cada tipo de documento acionável.
+    *   5.2.3: Verificar a clareza da interface, navegação e feedback ao usuário.
+    *   5.2.4: Garantir que a linguagem e os fluxos sejam acessíveis para usuários não-técnicos.
+    *   5.2.5: Coletar feedback (se possível) de empreendedores reais.
+
+**Task 5.3: Refatoração e Otimização**
+*   **Ordem:** 26
+*   **Complexidade:** Média
+*   **Dependências:** Testes concluídos
+*   **Subtasks:**
+    *   5.3.1: Revisar código em busca de duplicação, complexidade desnecessária e oportunidades de melhoria.
+    *   5.3.2: Otimizar performance (ex: lazy loading de componentes/rotas, otimização de queries Firebase).
+    *   5.3.3: Refinar os prompts dos agentes com base nos testes para melhorar a qualidade das respostas.
+    *   5.3.4: Melhorar os templates de documentos com base no feedback.
+
+**Task 5.4: Preparar Documentação Final**
+*   **Ordem:** 27
+*   **Complexidade:** Média
+*   **Dependências:** Projeto finalizado
+*   **Subtasks:**
+    *   5.4.1: Escrever um `README.md` completo para o repositório.
+    *   5.4.2: Finalizar o Guia de Implementação em formato `.mdc`.
+    *   5.4.3: Criar documentação de usuário explicando como utilizar a plataforma.
+    *   5.4.4: Criar guia para empreendedores sobre como aproveitar ao máximo os agentes e documentos.
+
+**Task 5.5: Configurar Build para Produção**
+*   **Ordem:** 28
+*   **Complexidade:** Baixa
+*   **Dependências:** Projeto finalizado e testado
+*   **Subtasks:**
+    *   5.5.1: Executar o comando de build do Vite (`npm run build`).
+    *   5.5.2: Verificar os arquivos gerados na pasta `dist`.
+    *   5.5.3: Preparar instruções para deploy (ex: Firebase Hosting, Netlify, Vercel).

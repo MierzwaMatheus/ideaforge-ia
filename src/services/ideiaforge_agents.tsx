@@ -1,5 +1,6 @@
 import { getDatabase, ref, get, query, orderByChild, limitToLast } from 'firebase/database';
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 
 // --- Interfaces e Tipos ---
 
@@ -280,7 +281,7 @@ Palavras-chave:`;
  * @returns A resposta de texto da IA.
  */
 async function callGoogleAI(apiKey: string, prompt: string): Promise<string> {
-  const API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'; // Exemplo, verificar endpoint correto
+  const API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'; // Exemplo, verificar endpoint correto
 
   try {
     const response = await fetch(`${API_ENDPOINT}?key=${apiKey}`, {
@@ -353,60 +354,47 @@ async function extractKeywords(userMessage: string, apiKey: string): Promise<str
  * @returns String formatada com o contexto relevante.
  */
 async function filterContext(projectId: string, agentId: AgentId, keywords: string[]): Promise<string> {
-  // --- Simulação/Placeholder para Interação com Firebase ---
-  console.log(`Buscando contexto para Projeto: ${projectId}, Agente: ${agentId}, Keywords: ${keywords.join(', ')}`);
-
-  // 1. Inicializar Firebase (se ainda não inicializado globalmente)
-  // const firebaseApp = initializeApp(firebaseConfig); // Obtenha firebaseConfig de .env
-  // const db = getDatabase(firebaseApp);
-
-  // 2. Buscar detalhes do projeto (onboarding data, etc.)
-  let projectDetailsContext = '';
   try {
-    // const projectRef = ref(db, `projects/${auth.currentUser.uid}/${projectId}`); // Precisa do UID do usuário
-    // const projectSnapshot = await get(projectRef);
-    // if (projectSnapshot.exists()) {
-    //   const data = projectSnapshot.val();
-    //   projectDetailsContext = `Detalhes do Projeto: Nome: ${data.details.name}, Tipo: ${data.details.type}, Setor: ${data.details.sector}, Público-Alvo: ${data.details.targetAudience}. Dados Onboarding: ${JSON.stringify(data.onboardingData)}\n`;
-    // }
-    projectDetailsContext = `\n[Simulado] Detalhes do Projeto: Nome: Teste, Tipo: Serviço, Setor: Educação, Público-Alvo: Estudantes universitários.\n`; // Placeholder
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return '';
+    const db = getDatabase();
+    // 1. Buscar detalhes do projeto
+    let projectDetailsContext = '';
+    try {
+      const projectRef = ref(db, `users/${user.uid}/projects/${projectId}`);
+      const projectSnapshot = await get(projectRef);
+      if (projectSnapshot.exists()) {
+        const data = projectSnapshot.val();
+        projectDetailsContext = `Detalhes do Projeto: Nome: ${data.projectName || ''}, Tipo: ${data.projectType || ''}, Setor: ${data.sector || ''}, Público-Alvo: ${data.targetAudience || ''}, Objetivo: ${data.mainObjective || ''}, Orçamento: ${data.budget || ''}`;
+      }
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do projeto:', error);
+    }
+    // 2. Buscar histórico de chat relevante
+    let chatHistoryContext = '';
+    try {
+      const messagesRef = ref(db, `users/${user.uid}/projects/${projectId}/chats/${agentId}/messages`);
+      const lastNMessagesQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(10));
+      const chatSnapshot = await get(lastNMessagesQuery);
+      if (chatSnapshot.exists()) {
+        const messages: any[] = [];
+        chatSnapshot.forEach((childSnapshot) => {
+          messages.push(childSnapshot.val());
+        });
+        // Formatar histórico
+        chatHistoryContext = messages.map(msg => `${msg.sender === 'user' ? 'Usuário' : agentId}: ${msg.content}`).join('\n');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar histórico de chat:', error);
+    }
+    // 3. Combinar e retornar contexto
+    const fullContext = `${projectDetailsContext}\n${chatHistoryContext}`.trim();
+    return fullContext;
   } catch (error) {
-    console.error('Erro ao buscar detalhes do projeto:', error);
+    console.error('Erro geral ao montar contexto:', error);
+    return '';
   }
-
-  // 3. Buscar histórico de chat relevante
-  let chatHistoryContext = '';
-  try {
-    // const messagesRef = ref(db, `chats/${projectId}/${agentId}/messages`);
-    // const lastNMessagesQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(10)); // Ex: Últimas 10 mensagens
-    // const chatSnapshot = await get(lastNMessagesQuery);
-    // if (chatSnapshot.exists()) {
-    //   const messages: FirebaseMessage[] = [];
-    //   chatSnapshot.forEach((childSnapshot) => {
-    //     messages.push(childSnapshot.val() as FirebaseMessage);
-    //   });
-    //   // Lógica de filtragem adicional por keywords (pode ser complexa)
-    //   const relevantMessages = messages.filter(msg => keywords.some(kw => msg.content.toLowerCase().includes(kw.toLowerCase())));
-    //   // Formatar histórico
-    //   chatHistoryContext = relevantMessages.map(msg => `${msg.sender === 'user' ? 'Usuário' : AGENTS[msg.sender as AgentId]?.name}: ${msg.content}`).join('\n');
-    // }
-    // Placeholder Simples:
-    const simulatedHistory = [
-      `Usuário: Minha ideia é um serviço de mentoria para estudantes universitários.`,
-      `${AGENTS[agentId]?.name || agentId}: Interessante! Que tipo de mentoria você está pensando em oferecer?`
-    ].join('\n');
-    chatHistoryContext = `\nHistórico Relevante (Simulado):\n${simulatedHistory}\n`;
-
-  } catch (error) {
-    console.error('Erro ao buscar histórico de chat:', error);
-  }
-
-  // 4. Combinar e retornar contexto
-  const fullContext = `${projectDetailsContext}${chatHistoryContext}`.trim();
-  console.log("Contexto Filtrado (Simulado):", fullContext);
-  // Limitar tamanho do contexto se necessário
-  const MAX_CONTEXT_LENGTH = 3000; // Ajustar conforme limites da API
-  return fullContext.length > MAX_CONTEXT_LENGTH ? fullContext.substring(fullContext.length - MAX_CONTEXT_LENGTH) : fullContext;
 }
 
 /**

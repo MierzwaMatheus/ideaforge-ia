@@ -74,7 +74,7 @@ const OnboardingFlow = () => {
               timestamp: Date.now(),
               agentType: AGENT_ID_MAP[agentId],
             };
-            const chatPath = `chats/${projectId}/${agentId}/messages`;
+            const chatPath = `users/${user.uid}/projects/${projectId}/chats/${agentId}/messages`;
             await set(ref(db, `${chatPath}/1`), userMsg);
             await set(ref(db, `${chatPath}/2`), agentMsg);
             console.log(`[Onboarding] Mensagens salvas para agente: ${agentId}`);

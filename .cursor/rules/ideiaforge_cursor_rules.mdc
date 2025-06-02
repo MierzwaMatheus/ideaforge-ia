@@ -1,0 +1,144 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rules - Projeto IdeaForge
+
+Este arquivo define as diretrizes e a estrutura de dados para o desenvolvimento do IdeaForge, otimizado para o ambiente do Cursor IDE.
+
+## Main
+
+*   **Objetivo Principal:** Criar uma aplicação web (IdeaForge) usando React (Vite) e Firebase (Realtime Database, Auth) que permite aos usuários submeter ideias de projetos e receber protótipos/MVPs gerados com auxílio da IA do Google (API configurada pelo usuário).
+*   **Arquitetura:** Front-end React (Vite), Back-end exclusivamente Firebase (Auth, Realtime Database - plano gratuito). Interação com IA via API do Google AI Studio.
+*   **Fluxo do Usuário:** Cadastro/Login -> Onboarding (definição do projeto) -> Dashboard (visualização de projetos) -> Tela do Projeto (chat com agentes IA) -> Configurações (gerenciamento de API Key).
+*   **Open Source:** O código final deve ser estruturado e documentado para ser potencialmente open-source.
+
+## Google LLM
+
+*   **API:** Utilizar a API Generative AI do Google (via Google AI Studio).
+*   **Chave de API:** Cada usuário DEVE fornecer sua própria chave de API, que será armazenada de forma segura (preferencialmente no lado do cliente ou com criptografia mínima se armazenada no Firebase) e usada para todas as chamadas à LLM.
+*   **Agentes:** Implementar 6 agentes:
+    1.  **Agente de Palavras-Chave:** Extrai 5-10 keywords da mensagem do usuário.
+    2.  **Valida IA:** Analisa viabilidade/demanda.
+    3.  **Strategos AI:** Sugere modelos de negócio.
+    4.  **Pixel AI:** Sugere design/branding.
+    5.  **Impulso AI:** Cria nomes, slogans, personas.
+    6.  **Construtor AI:** Propõe stack/MVP.
+*   **Contexto:** O histórico de chat e dados do projeto relevantes serão buscados no Firebase, filtrados pelas palavras-chave extraídas, e enviados como contexto para o agente especialista apropriado a cada interação.
+*   **Formato de Resposta (Agentes Especialistas):** As respostas dos 5 agentes especialistas devem ser em HTML formatado, seguindo um padrão consistente.
+
+## Stack Técnica
+
+*   **Front-end:** React 18+ com Vite.
+*   **Linguagem:** TypeScript.
+*   **Estilização:** CSS Modules, Styled Components ou Tailwind CSS (a ser definido pelo LOVABLE.DEV, mas garantir consistência). Foco em Dark Mode e design responsivo (Mobile First).
+*   **Roteamento:** `react-router-dom` v6+.
+*   **Gerenciamento de Estado:** Zustand (preferencial) ou Context API.
+*   **Chamadas API (Google):** `fetch` API nativa ou `axios`.
+*   **Back-end:** Firebase (v9+ modular SDK).
+    *   Autenticação: Firebase Authentication (Email/Senha, Google).
+    *   Banco de Dados: Firebase Realtime Database.
+*   **Ambiente de Desenvolvimento:** Node.js (versão LTS), npm/yarn.
+*   **Editor:** Otimizado para Cursor IDE.
+
+## Firebase
+
+*   **Serviços Utilizados:** Authentication, Realtime Database.
+*   **Plano:** Spark (Gratuito).
+*   **SDK:** Utilizar o SDK v9+ modular (`import { getAuth } from 'firebase/auth';`).
+*   **Configuração:** Inicializar o Firebase no front-end usando as credenciais do projeto (`firebaseConfig`) armazenadas em variáveis de ambiente (`.env`).
+*   **Regras de Segurança:** Implementar regras de segurança robustas no Realtime Database para garantir que usuários só acessem e modifiquem seus próprios dados. Validar estrutura e tipos de dados.
+*   **Estrutura de Dados:** Seguir a estrutura definida na seção "Formato do Realtime Database".
+
+## Formato do Realtime Database (JSON)
+
+```json
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "profile": {
+          ".validate": "newData.hasChildren(['email', 'createdAt']) && newData.child('email').isString() && newData.child('createdAt').isNumber()",
+          "email": { ".validate": "newData.isString()" },
+          "displayName": { ".validate": "newData.isString()" },
+          "photoURL": { ".validate": "newData.isString()" },
+          "createdAt": { ".validate": "newData.isNumber()" }
+        },
+        "apiKey": {
+          // Idealmente, a chave não seria armazenada aqui por segurança.
+          // Se for, deve ser criptografada ou armazenada com regras muito restritas.
+          // Exemplo simples (NÃO RECOMENDADO PARA PRODUÇÃO REAL):
+          ".validate": "newData.isString() && newData.val().length > 10"
+        },
+        "preferences": {
+          // Espaço para futuras preferências do usuário
+          "theme": { ".validate": "newData.isString() && (newData.val() === 'dark' || newData.val() === 'light')" }
+        }
+      }
+    },
+    "projects": {
+      "$uid": {
+        // Usuário só pode ler/escrever seus próprios projetos
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "$projectId": {
+          ".validate": "newData.hasChildren(['details', 'onboardingData', 'createdAt', 'status'])",
+          "details": {
+            ".validate": "newData.hasChildren(['name', 'type'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+            "description": { ".validate": "newData.isString()" },
+            "type": { ".validate": "newData.isString()" } // e.g., 'mobile_app', 'web_app'
+          },
+          "onboardingData": {
+            // Estrutura flexível para dados do onboarding
+            ".validate": "newData.isObject()"
+          },
+          "createdAt": { ".validate": "newData.isNumber()" },
+          "updatedAt": { ".validate": "newData.isNumber()" },
+          "status": { ".validate": "newData.isString()" } // e.g., 'active', 'archived'
+        }
+      },
+      // Índice para permitir buscar projetos por UID (necessário para regras)
+      ".indexOn": ["$uid"]
+    },
+    "chats": {
+      "$projectId": {
+        // Permite leitura/escrita se o usuário for dono do projeto
+        ".read": "root.child('projects').child(auth.uid).child($projectId).exists()",
+        ".write": "root.child('projects').child(auth.uid).child($projectId).exists()",
+        "$agentId": { // e.g., 'valida_ia', 'strategos_ai', etc.
+          "messages": {
+            "$messageId": {
+              ".validate": "newData.hasChildren(['sender', 'content', 'timestamp', 'userId']) && newData.child('timestamp').isNumber()",
+              "sender": { ".validate": "newData.isString() && (newData.val() === 'user' || newData.val() === $agentId)" },
+              "content": { ".validate": "newData.isString() && newData.val().length > 0" },
+              "timestamp": { ".validate": "newData.isNumber()" },
+              "userId": { ".validate": "newData.isString() && newData.val() === auth.uid" } // Garante que a mensagem do usuário é do usuário logado
+            }
+          }
+        }
+      }
+    },
+    // Espaço para futuras estruturas globais (ex: templates)
+    "projectTemplates": {
+      ".read": true // Exemplo: Templates podem ser públicos
+    }
+  }
+}
+```
+
+**Observações sobre a Estrutura:**
+
+1.  **`users/$uid`**: Armazena informações básicas do perfil e configurações do usuário. A `apiKey` é um ponto sensível; idealmente, seria gerenciada no lado do cliente ou com segurança reforçada.
+2.  **`projects/$uid/$projectId`**: Contém os dados de cada projeto criado pelo usuário, incluindo detalhes, dados coletados no onboarding e status.
+3.  **`chats/$projectId/$agentId/messages/$messageId`**: Estrutura para armazenar o histórico de conversas. Cada projeto tem múltiplos chats (um por agente), e cada chat contém uma lista de mensagens. Cada mensagem tem remetente (`sender`), conteúdo (`content`), timestamp e `userId` (para garantir a autoria da mensagem do usuário nas regras).
+4.  **Regras de Segurança**: As regras JSON incluídas são um ponto de partida e devem ser refinadas e testadas exaustivamente. Elas garantem que usuários só acessem seus dados e validam a estrutura básica das informações salvas.
+5.  **Índices**: A regra `.indexOn` em `projects` é um exemplo; outros índices podem ser necessários dependendo das consultas realizadas.
+6.  **Expansibilidade**: A estrutura deixa espaço para nós futuros como `projectTemplates` ou `userPreferences`.
+
+

@@ -1,0 +1,120 @@
+---
+description: quando precisarmos lidar com os agentes de 
+globs: 
+alwaysApply: false
+---
+# Guia de Implementação e Manutenção - `ideiaforge_agents.tsx`
+
+Este documento serve como guia técnico para integrar, utilizar e manter o módulo de agentes de IA (`ideiaforge_agents.tsx`) na aplicação IdeaForge, especialmente ao usar o Cursor IDE.
+
+## 1. Visão Geral do Módulo (`ideiaforge_agents.tsx`)
+
+Este arquivo TypeScript (`.tsx`, embora não contenha JSX, a extensão é mantida conforme solicitado) encapsula toda a lógica relacionada à interação com os agentes de Inteligência Artificial do Google Generative AI. Suas principais responsabilidades são:
+
+*   **Definição dos Agentes:** Contém as configurações (ID, nome, personalidade, prompt base HTML) para cada um dos 5 agentes especialistas (Valida IA, Strategos AI, Pixel AI, Impulso AI, Construtor AI).
+*   **Extração de Palavras-chave:** Implementa a função `extractKeywords` que utiliza um prompt específico para pedir à IA que identifique os termos chave na mensagem do usuário.
+*   **Filtragem de Contexto:** Implementa a função `filterContext` que (atualmente de forma simulada, **precisa de implementação real com Firebase**) busca dados relevantes do projeto e histórico de chat no Firebase, filtrando-os com base nas palavras-chave extraídas.
+*   **Orquestração da Resposta:** A função principal `getAgentResponse` coordena o fluxo: recebe a mensagem do usuário, extrai keywords, filtra o contexto, monta o prompt final para o agente especialista selecionado e chama a API do Google.
+*   **Comunicação com API Google:** Inclui uma função auxiliar `callGoogleAI` para realizar as chamadas HTTP à API do Google Generative AI, tratando respostas e erros básicos.
+
+## 2. Dependências e Configuração
+
+*   **Firebase SDK:** O módulo depende crucialmente do SDK do Firebase (`firebase/app`, `firebase/database`) para a função `filterContext` buscar dados. Certifique-se de que o Firebase esteja inicializado corretamente na sua aplicação React antes de chamar funções que interagem com o DB.
+    ```typescript
+    // Exemplo de inicialização (geralmente em src/firebase.ts ou similar)
+    import { initializeApp } from 'firebase/app';
+    import { getDatabase } from 'firebase/database';
+    import { getAuth } from 'firebase/auth';
+
+    const firebaseConfig = {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    export { auth, db };
+    ```
+*   **API Key do Google:** A função `getAgentResponse` requer a chave de API do Google AI Studio do usuário. Esta chave deve ser obtida da interface (onde o usuário a insere na tela de Configurações) e passada como argumento.
+*   **Variáveis de Ambiente:** Armazene as credenciais do Firebase em variáveis de ambiente (ex: `.env` com prefixo `VITE_` para Vite).
+
+## 3. Integração com Componentes React (Interface de Chat)
+
+A principal forma de interagir com este módulo é através da função `getAgentResponse`.
+
+*   **Chamada:** No componente de chat (ex: `TelaDoProjeto.tsx`), após o usuário enviar uma mensagem:
+    1.  Obtenha o `projectId`, `agentId` selecionado, a `userMessage` e a `apiKey` do usuário (do estado global ou local).
+    2.  Chame `await getAgentResponse(projectId, agentId, userMessage, apiKey);`.
+    3.  Exiba um indicador de loading enquanto a função está em execução.
+    4.  A função retornará uma string contendo o HTML da resposta do agente ou uma mensagem de erro formatada em HTML.
+*   **Renderização da Resposta:** Utilize `dangerouslySetInnerHTML` para renderizar o HTML retornado dentro do balão de mensagem do agente. **Importante:** Embora a IA seja instruída a gerar HTML seguro, considere adicionar uma camada de sanitização (ex: usando bibliotecas como `dompurify`) antes de renderizar para mitigar riscos de XSS, caso a IA gere HTML inesperado.
+    ```tsx
+    // Exemplo no componente de chat
+    const agentMsg = { sender: agentId, content: htmlResponse };
+    // ... (salvar no estado)
+
+    // Na renderização da mensagem:
+    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(agentMsg.content) }} />
+    ```
+*   **Salvar no Firebase:** Lembre-se de salvar tanto a mensagem do usuário quanto a resposta HTML do agente no Realtime Database, seguindo a estrutura definida (`chats/$projectId/$agentId/messages/$messageId`).
+
+## 4. Implementação da Interação com Firebase (`filterContext`)
+
+A função `filterContext` no arquivo `ideiaforge_agents.tsx` **atualmente contém apenas lógica simulada**. É **essencial** implementar a busca real de dados no Firebase.
+
+*   **Passos para Implementação:**
+    1.  **Importar `db` e `auth`:** Importe as instâncias inicializadas do Database e Auth do seu arquivo de configuração Firebase.
+    2.  **Obter UID:** A função precisará do `uid` do usuário autenticado para construir os caminhos corretos no Firebase (ex: `ref(db, 
+`projects/${auth.currentUser.uid}/${projectId}
+)`). Passe o `uid` como argumento para `filterContext` ou obtenha-o de `auth.currentUser`.
+    3.  **Buscar Detalhes do Projeto:** Use `get` e `ref` para buscar dados de `projects/$uid/$projectId/details` e `projects/$uid/$projectId/onboardingData`.
+    4.  **Buscar Histórico de Chat:** Use `get`, `ref`, `query`, `orderByChild('timestamp')`, e `limitToLast(N)` para buscar as últimas N mensagens de `chats/$projectId/$agentId/messages`.
+    5.  **Lógica de Filtragem:** Implemente a lógica para selecionar mensagens relevantes com base nas `keywords`. Uma abordagem simples é verificar se `message.content.toLowerCase().includes(keyword.toLowerCase())`. Você pode querer combinar as últimas N mensagens com mensagens mais antigas que contenham keywords.
+    6.  **Formatação:** Formate os dados do projeto e as mensagens selecionadas em uma string de contexto clara e concisa.
+    7.  **Tratamento de Erros:** Use `try...catch` para lidar com possíveis erros ao acessar o Firebase.
+
+## 5. Gerenciamento da Chave de API
+
+*   **Armazenamento:** A forma mais segura é **não armazenar a chave API do usuário no Firebase**. Idealmente, ela deve ser mantida apenas no estado da aplicação React ou no `localStorage` do navegador durante a sessão.
+*   **Transmissão:** A chave é passada como argumento para `getAgentResponse` e `callGoogleAI` a cada chamada.
+*   **Segurança:** Informe ao usuário sobre a importância de manter sua chave segura e não compartilhá-la.
+
+## 6. Customização e Manutenção
+
+*   **Modificar Prompts:**
+    *   **Prompt Base (Personalidade/Estrutura):** Edite a propriedade `basePrompt` dentro do objeto de cada agente em `AGENTS`. Mantenha a instrução para responder em HTML e a estrutura desejada.
+    *   **Prompt de Keywords:** Edite a constante `KEYWORD_EXTRACTION_PROMPT`.
+*   **Ajustar Personalidades:** Modifique a propriedade `personality` para refinar o comportamento do agente.
+*   **Adicionar Novos Agentes:**
+    1.  Defina um novo `AgentId` no tipo `AgentId`.
+    2.  Adicione uma nova entrada no objeto `AGENTS` com `id`, `name`, `personality` e `basePrompt`.
+    3.  Atualize a interface do usuário para permitir a seleção do novo agente.
+*   **Melhorar Filtragem de Contexto:** Refine a lógica em `filterContext` para buscar informações mais relevantes ou usar técnicas mais avançadas de correspondência de keywords.
+*   **Ajustar Chamada à API:** Modifique `callGoogleAI` se precisar alterar o modelo do Google (ex: `gemini-pro` para outro), passar parâmetros de geração (temperatura, etc.) ou adaptar-se a mudanças na API do Google.
+
+## 7. Tratamento de Erros
+
+*   **`callGoogleAI`:** Já inclui tratamento básico para erros de rede e respostas não-OK da API Google. Retorna uma mensagem de erro HTML.
+*   **`getAgentResponse`:** Inclui um `try...catch` geral para capturar erros durante a orquestração (extração de keywords, filtragem, chamada final). Retorna mensagens de erro HTML amigáveis.
+*   **Firebase:** Adicione tratamento de erros específico (`try...catch`) nas chamadas ao Firebase dentro de `filterContext` quando implementado.
+*   **Interface:** O componente React que chama `getAgentResponse` deve estar preparado para receber e exibir essas mensagens de erro HTML.
+
+## 8. Testes
+
+*   **Testes Unitários (Vitest/Jest):**
+    *   Teste a função `extractKeywords` mockando `callGoogleAI` para verificar se ela processa a resposta corretamente.
+    *   Teste a lógica de formatação dos prompts finais.
+    *   Teste a função `filterContext` (quando implementada) mockando as chamadas ao Firebase.
+*   **Testes de Integração:**
+    *   Teste o fluxo completo de `getAgentResponse` mockando `callGoogleAI` e as chamadas ao Firebase para garantir que a orquestração funcione.
+*   **Testes End-to-End (Cypress/Playwright):** Teste a interação real na interface, desde digitar uma mensagem até receber e renderizar a resposta da IA (pode exigir uma chave de API de teste e dados de teste no Firebase).
+
+--- 
+*Este guia fornece as diretrizes essenciais. Adapte e expanda conforme a evolução do projeto IdeaForge.*
