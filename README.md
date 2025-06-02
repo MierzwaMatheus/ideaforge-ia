@@ -1,7 +1,7 @@
 # 🚀 IdeaForge
 
 <div align="center">
-  <img src="https://via.placeholder.com/800x400/1C1C1E/34C759?text=IdeaForge" alt="IdeaForge Banner" width="800"/>
+  <img src="https://i.postimg.cc/6QxwKxQf/favIF0.png" alt="IdeaForge Banner" width="800"/>
   
   <p><em>Transforme ideias em projetos estruturados com a ajuda de especialistas de IA</em></p>
   
@@ -16,28 +16,6 @@
 
 **IdeaForge** é uma plataforma revolucionária para empreendedores e criativos que transforma ideias vagas em projetos estruturados com documentos acionáveis. Utilizando IA especializada, o IdeaForge oferece feedback de múltiplas perspectivas para refinar sua ideia e gerar documentos essenciais como pitch decks, business canvas e landing pages.
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center" width="33%">
-        <img src="https://via.placeholder.com/250x150/1C1C1E/0A84FF?text=Validação" width="250"/>
-        <br />
-        <b>Validação de Ideias</b>
-      </td>
-      <td align="center" width="33%">
-        <img src="https://via.placeholder.com/250x150/1C1C1E/34C759?text=Estratégia" width="250"/>
-        <br />
-        <b>Estratégia de Negócios</b>
-      </td>
-      <td align="center" width="33%">
-        <img src="https://via.placeholder.com/250x150/1C1C1E/FF9500?text=Documentos" width="250"/>
-        <br />
-        <b>Documentos Acionáveis</b>
-      </td>
-    </tr>
-  </table>
-</div>
-
 ## ✨ Recursos Principais
 
 ### 🧠 Agentes Especialistas de IA
@@ -48,9 +26,9 @@
 <table>
   <tr>
     <td width="20%" align="center">
-      <img src="https://via.placeholder.com/80x80/1C1C1E/0A84FF?text=V" width="80" height="80" style="border-radius: 50%"/>
+      <img src="https://i.postimg.cc/sg7x7cQK/20250601-2136-Futuristic-Business-Analyst-simple-compose-01jwq113wme81r2bvrywpkqdmt.png" width="80" height="80" style="border-radius: 50%"/>
       <br />
-      <b>Valida IA</b>
+      <b>Valida AI</b>
     </td>
     <td width="80%">
       Analisa a viabilidade da sua ideia, identifica concorrentes e avalia o potencial de mercado com dados e insights objetivos.
@@ -58,7 +36,7 @@
   </tr>
   <tr>
     <td width="20%" align="center">
-      <img src="https://via.placeholder.com/80x80/1C1C1E/34C759?text=S" width="80" height="80" style="border-radius: 50%"/>
+      <img src="https://i.postimg.cc/3NkJRCQX/20250601-2138-Futuristic-Economic-Strategist-simple-compose-01jwq13ve3f9wa7q1em75q0d15.png" width="80" height="80" style="border-radius: 50%"/>
       <br />
       <b>Strategos AI</b>
     </td>
@@ -68,7 +46,7 @@
   </tr>
   <tr>
     <td width="20%" align="center">
-      <img src="https://via.placeholder.com/80x80/1C1C1E/FF2D55?text=P" width="80" height="80" style="border-radius: 50%"/>
+      <img src="https://i.postimg.cc/MppxKm0v/20250601-2140-Futuristic-Visionary-Portrait-simple-compose-01jwq186jqezatfyvb19axst54.png" width="80" height="80" style="border-radius: 50%"/>
       <br />
       <b>Pixel AI</b>
     </td>
@@ -78,7 +56,7 @@
   </tr>
   <tr>
     <td width="20%" align="center">
-      <img src="https://via.placeholder.com/80x80/1C1C1E/FF9500?text=I" width="80" height="80" style="border-radius: 50%"/>
+      <img src="https://i.postimg.cc/1zLZBxkq/20250601-2142-Futuristic-Marketing-Visionary-simple-compose-01jwq1axkyeqst3mryt2z1fmek.png" width="80" height="80" style="border-radius: 50%"/>
       <br />
       <b>Impulso AI</b>
     </td>
@@ -88,7 +66,7 @@
   </tr>
   <tr>
     <td width="20%" align="center">
-      <img src="https://via.placeholder.com/80x80/1C1C1E/5E5CE6?text=C" width="80" height="80" style="border-radius: 50%"/>
+      <img src="https://i.postimg.cc/KY36Rq1v/20250601-2144-Futuristic-AI-Engineer-simple-compose-01jwq1eyfmfw6bnbq1hvg3th8m.png" width="80" height="80" style="border-radius: 50%"/>
       <br />
       <b>Construtor AI</b>
     </td>
@@ -100,10 +78,6 @@
 </details>
 
 ### 📄 Documentos Acionáveis
-
-<div align="center">
-  <img src="https://via.placeholder.com/700x300/1C1C1E/FFFFFF?text=Documentos+Acionáveis" alt="Documentos Acionáveis" width="700"/>
-</div>
 
 - **Pitch Deck** - Apresentações profissionais para investidores e parceiros
 - **Business Canvas** - Visualização estruturada do seu modelo de negócio
@@ -136,6 +110,7 @@ graph LR
 - **IA:** Google Generative AI (Gemini)
 - **Estilo:** Modo escuro com UI moderna e minimalista
 - **Fontes:** Bitter (títulos) e Exo (textos)
+- **Host:** Vercel
 
 ## 🚀 Começando
 
@@ -166,30 +141,17 @@ npm run dev
 ## 📱 Demonstração
 
 <div align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <img src="https://via.placeholder.com/250x500/1C1C1E/FFFFFF?text=Dashboard" alt="Dashboard" width="250"/>
-        <br />
-        <b>Dashboard</b>
-      </td>
-      <td align="center">
-        <img src="https://via.placeholder.com/250x500/1C1C1E/FFFFFF?text=Chat" alt="Chat com Agentes" width="250"/>
-        <br />
-        <b>Chat com Agentes</b>
-      </td>
-      <td align="center">
-        <img src="https://via.placeholder.com/250x500/1C1C1E/FFFFFF?text=Documentos" alt="Documentos" width="250"/>
-        <br />
-        <b>Documentos</b>
-      </td>
-    </tr>
-  </table>
+  
+<a href="https://ideaforge-ia.vercel.app/" target="_blank" rel="noopener noreferrer">
+                <span className="text-ideaforge-text-secondary hover:text-ideaforge-text-primary ideaforge-transition">
+   <span className="text-xs">Powered by</span>
+                  <span className="text-xs">IdeaForge</span>
+                </span>
+              </a>
 </div>
 
 ## 🔮 Roadmap
 
-- [ ] Integração com ferramentas de design (Figma, Canva)
 - [ ] Exportação direta para plataformas de apresentação
 - [ ] Colaboração em tempo real para equipes
 - [ ] Marketplace de templates para documentos
@@ -197,7 +159,7 @@ npm run dev
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md) para mais detalhes.
+Contribuições são bem-vindas!.
 
 <details>
 <summary><b>Guia de Contribuição Rápido</b></summary>
@@ -212,7 +174,7 @@ Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md) para ma
 
 ## 📜 Licença
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+Este projeto está licenciado sob a Licença MIT
 
 ## 🙏 Agradecimentos
 
@@ -225,13 +187,13 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 <div align="center">
   <p>
-    <a href="https://github.com/seu-usuario/ideaforge/issues">Reportar Bug</a> •
-    <a href="https://github.com/seu-usuario/ideaforge/issues">Solicitar Feature</a>
+    <a href="https://github.com/MierzwaMatheus/ideaforge-ia/issues">Reportar Bug</a> •
+    <a href="https://github.com/MierzwaMatheus/ideaforge-ia/issues">Solicitar Feature</a>
   </p>
   
   <p>Feito com ❤️ para empreendedores e criativos</p>
   
-  <a href="https://github.com/seu-usuario">
-    <img src="https://via.placeholder.com/150x50/1C1C1E/FFFFFF?text=Seu+Nome" alt="Seu Nome" width="150"/>
+  <a href="https://github.com/MierzwaMatheus">
+    <img src="https://avatars.githubusercontent.com/u/48134874?v=4" alt="Matheus Mierzwa" width="150"/>
   </a>
 </div>
